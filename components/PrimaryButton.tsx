@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Center, Button } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 
 interface PrimaryButtonProps {
   text: string;

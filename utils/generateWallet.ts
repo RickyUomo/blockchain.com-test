@@ -26,12 +26,8 @@ export function generateWallet() {
 
     return {
       address,
-      // mnemonic,
-      // publicKey: child.publicKey.toString(),
-      // privateKey: child.toWIF(), // Wallet Import Format
     };
   } catch(error) {
-    console.log('error occur', error);
+    console.error('error occur', error);
   }
- 
 }

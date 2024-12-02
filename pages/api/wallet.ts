@@ -3,14 +3,15 @@ import { generateWallet } from '@/utils/generateWallet';
 
 type WalletResponse = {
   address: string;
-  // mnemonic: string;
-  // publicKey: string;
-  // privateKey: string;
+};
+
+type ErrorResponse = {
+  error: string;
 };
 
 export default function handler(
   req: NextApiRequest,
-  res: NextApiResponse<WalletResponse>
+  res: NextApiResponse<WalletResponse | ErrorResponse>
 ) {
 
   try {
@@ -22,6 +23,7 @@ export default function handler(
     
     res.status(200).json(wallet);
   } catch(error) {
-    console.log('error occur', error)
+    console.error('error occur', error)
+    res.status(500).json({ error: 'Failed to generate wallet' });
   }
 }

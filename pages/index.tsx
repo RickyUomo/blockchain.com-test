@@ -1,9 +1,10 @@
 import Head from "next/head";
-import { Box, Center, Button } from "@chakra-ui/react";
+import { Box, Center, Button, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { PaymentForm } from "@/components/PaymentForm";
+import { useBitcoinBalance } from "@/hooks/useBitcoinBalance";
 
 type Wallet = {
   address: string;
@@ -14,13 +15,21 @@ type PaymentStatus = "initiated" | "processing" | "completed" | "fail";
 export default function Home() {
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [amount, setAmount] = useState<string>("");
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | undefined>(undefined);
+  const { data, isLoading, isError, error, formatBTC } = useBitcoinBalance(wallet?.address);
 
   const fetchWallet = async () => {
     const response = await fetch("/api/wallet");
     const data: Wallet = await response.json();
     setWallet(data);
   };
+
+  if (isLoading) {
+    return <div>Loading balance...</div>;
+  }
+
+  if (isError) {
+    return <div>Error: {(error as Error).message}</div>;
+  }
 
   return (
     <>
@@ -33,15 +42,18 @@ export default function Home() {
       <Center minH="100vh">
         {!wallet && <PrimaryButton text="Create Wallet" onClick={fetchWallet} />}
 
-        {wallet && (
-          <div>
-            <p>
-              <strong>Address:</strong> {wallet.address}
-            </p>
-            {paymentStatus === "initiated" && <QRCodeSVG value="https://reactjs.org/" />}
+        <Text>{data ? `${formatBTC(data.balance)} BTC` : "no balance"} </Text>
 
-            <PaymentForm />
-          </div>
+        {wallet && (
+          <Box>
+            <Text>
+              <strong>Address:</strong> {wallet.address}
+            </Text>
+            <Box my={10}>
+              <QRCodeSVG value={`bitcoin:${wallet.address}?amount=${0.00029349}`} />
+            </Box>
+            <PaymentForm amount={amount} setAmount={setAmount} />
+          </Box>
         )}
       </Center>
     </>
